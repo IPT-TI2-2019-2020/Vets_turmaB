@@ -39,6 +39,24 @@ namespace Vets.Controllers {
          // SELECT * FROM Donos d WHERE d.ID = id
          var dono = await db.Donos.FirstOrDefaultAsync(d => d.ID == id);
 
+
+         ///  d => d.ID == id   -> expressão Labda
+         ///  ^
+         ///  |
+         ///  'variável' que identifica cada um dos registos da tabela Donos
+         ///  esta 'variável' chama-se 'd' pq dessa forma associa-se mais facilmente aos Donos
+         ///  
+         ///    ^
+         ///    |
+         ///    => - simples separador
+         ///    
+         ///       ^
+         ///       |
+         ///       d - identifica o registo q está a ser processado
+         ///       d.ID - identifica o atributo 'ID', desse registo
+         ///       d.ID == id -> expressão lógica, devolvendo 'true' ou 'false'
+
+
          if (dono == null) {
             return NotFound();
          }
@@ -58,7 +76,8 @@ namespace Vets.Controllers {
       // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
       [HttpPost]
       [ValidateAntiForgeryToken]
-      public async Task<IActionResult> Create([Bind("ID,Nome,NIF")] Donos dono) {
+      public async Task<IActionResult> Create( Donos dono ) {
+         // public IActionResult Index(string visor, string bt, string primeiroOperando, string operador, string limpaVisor) {  -> na 'Calculadora'
 
          if (ModelState.IsValid) {
             db.Add(dono);
