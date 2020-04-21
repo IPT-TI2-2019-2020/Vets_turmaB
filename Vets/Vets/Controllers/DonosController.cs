@@ -19,6 +19,10 @@ namespace Vets.Controllers {
 
 
       // GET: Donos
+      /// <summary>
+      /// Invoca a View Index
+      /// </summary>
+      /// <returns></returns>
       public async Task<IActionResult> Index() {
          // em SQL, db.Donos.ToListAsync() significa:
          // SELECT * FROM Donos
@@ -30,9 +34,17 @@ namespace Vets.Controllers {
 
 
       // GET: Donos/Details/5
+      /// <summary>
+      /// Mostra os detalhes de um Dono
+      /// </summary>
+      /// <param name="id">identificador do Dono a detalhar</param>
+      /// <returns></returns>
       public async Task<IActionResult> Details(int? id) {
          if (id == null) {
-            return NotFound();
+            // não foi fornecido o ID
+            // pq o utilizador o eliminou propositadamente
+            // por isso, redireciono o utilizador para a página de Index
+            return RedirectToAction("Index");
          }
 
          // em SQL, db.Donos.FirstOrDefaultAsync(m => m.ID == id) significa
@@ -40,7 +52,7 @@ namespace Vets.Controllers {
          var dono = await db.Donos.FirstOrDefaultAsync(d => d.ID == id);
 
 
-         ///  d => d.ID == id   -> expressão Labda
+         ///  d => d.ID == id   -> expressão Lambda
          ///  ^
          ///  |
          ///  'variável' que identifica cada um dos registos da tabela Donos
@@ -58,7 +70,10 @@ namespace Vets.Controllers {
 
 
          if (dono == null) {
-            return NotFound();
+            // O ID fornecido não corresponde a um Dono válido
+            // pq o utilizador o alterou propositadamente
+            // por isso, redireciono o utilizador para a página de Index
+            return RedirectToAction("Index");
          }
 
          return View(dono);
@@ -76,7 +91,7 @@ namespace Vets.Controllers {
       // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
       [HttpPost]
       [ValidateAntiForgeryToken]
-      public async Task<IActionResult> Create( Donos dono ) {
+      public async Task<IActionResult> Create(Donos dono) {
          // public IActionResult Index(string visor, string bt, string primeiroOperando, string operador, string limpaVisor) {  -> na 'Calculadora'
 
          if (ModelState.IsValid) {
@@ -96,14 +111,21 @@ namespace Vets.Controllers {
       // GET: Donos/Edit/5
       public async Task<IActionResult> Edit(int? id) {
          if (id == null) {
-            return NotFound();
+            // não foi fornecido o ID
+            // pq o utilizador o eliminou propositadamente
+            // por isso, redireciono o utilizador para a página de Index
+            return RedirectToAction("Index");
          }
 
-         var donos = await db.Donos.FindAsync(id);
-         if (donos == null) {
-            return NotFound();
+         var dono = await db.Donos.FindAsync(id);
+
+         if (dono == null) {
+            // O ID fornecido não corresponde a um Dono válido
+            // pq o utilizador o alterou propositadamente
+            // por isso, redireciono o utilizador para a página de Index
+            return RedirectToAction("Index");
          }
-         return View(donos);
+         return View(dono);
       }
 
 
@@ -140,16 +162,22 @@ namespace Vets.Controllers {
       // GET: Donos/Delete/5
       public async Task<IActionResult> Delete(int? id) {
          if (id == null) {
-            return NotFound();
+            // não foi fornecido o ID
+            // pq o utilizador o eliminou propositadamente
+            // por isso, redireciono o utilizador para a página de Index
+            return RedirectToAction("Index");
          }
 
-         var donos = await db.Donos
+         var dono = await db.Donos
              .FirstOrDefaultAsync(m => m.ID == id);
-         if (donos == null) {
-            return NotFound();
+         if (dono == null) {
+            // O ID fornecido não corresponde a um Dono válido
+            // pq o utilizador o alterou propositadamente
+            // por isso, redireciono o utilizador para a página de Index
+            return RedirectToAction("Index");
          }
 
-         return View(donos);
+         return View(dono);
       }
 
 
