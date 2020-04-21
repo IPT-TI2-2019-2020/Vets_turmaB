@@ -26,7 +26,9 @@ namespace Vets.Models {
 
       public string Fotografia { get; set; }
 
-      // lista das Consulta a q um Veterinário está associado
+      /// <summary>
+      /// lista das Consulta a q um Veterinário está associado
+      /// </summary>
       public ICollection<Consultas> Consultas { get; set; }
 
    }

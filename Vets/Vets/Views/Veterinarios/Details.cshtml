@@ -1,0 +1,61 @@
+﻿@model Vets.Models.Veterinarios
+
+@{
+   ViewData["Title"] = "Detalhes do veterinário " + Model.Nome;
+}
+
+<h1>Veterinários</h1>
+
+<div>
+   <hr />
+   <dl class="row">
+      <dt class="col-sm-4">
+         @Html.DisplayNameFor(model => model.Nome)
+      </dt>
+      <dd class="col-sm-8">
+         @Html.DisplayFor(model => model.Nome)
+      </dd>
+      <dt class="col-sm-4">
+         @Html.DisplayNameFor(model => model.NumCedulaProf)
+      </dt>
+      <dd class="col-sm-8">
+         @Html.DisplayFor(model => model.NumCedulaProf)
+      </dd>
+      <dt class="col-sm-4">
+         @Html.DisplayNameFor(model => model.Fotografia)
+      </dt>
+      <dd class="col-sm-8">
+         <img src="~/Imagens/Vets/@Model.Fotografia" alt="imagem do veterinário @Model.Nome" title="@Model.Nome" />
+      </dd>
+   </dl>
+</div>
+
+
+@* Adicionar as consultas do veterinário *@
+<h4>Lista de consultas associadas ao/à @Model.Nome </h4>
+<table>
+   <tr>
+      <th>Data da consulta</th>
+      <th>Animal</th>
+      <th>Nome do Dono</th>
+   </tr>
+   @foreach (var consulta in Model.Consultas) {
+      <tr>
+         <td></td>
+         <td></td>
+         <td></td>
+      </tr>
+   }
+
+</table>
+
+
+
+
+
+
+
+<div>
+   <a asp-action="Edit" asp-route-id="@Model.ID">Editar</a> |
+   <a asp-action="Index">Regressar à listagem</a>
+</div>
