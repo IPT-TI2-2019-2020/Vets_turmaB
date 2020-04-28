@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -47,9 +48,9 @@ namespace Vets.Controllers {
 
          // acesso aos dados em modo 'Eager Loading'
          var veterinario = await _context.Veterinarios
-                                         .Include(v=>v.Consultas)
-                                         .ThenInclude(a=>a.Animal)
-                                         .ThenInclude (d=>d.Dono)
+                                         .Include(v => v.Consultas)
+                                         .ThenInclude(a => a.Animal)
+                                         .ThenInclude(d => d.Dono)
                                          .FirstOrDefaultAsync(v => v.ID == id);
 
          if (veterinario == null) {
@@ -110,12 +111,19 @@ namespace Vets.Controllers {
          return View();
       }
 
+
+
       // POST: Veterinarios/Create
       // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
       // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
       [HttpPost]
       [ValidateAntiForgeryToken]
-      public async Task<IActionResult> Create([Bind("ID,Nome,NumCedulaProf,Fotografia")] Veterinarios veterinarios) {
+      public async Task<IActionResult> Create([Bind("ID,Nome,NumCedulaProf,Fotografia")] Veterinarios veterinarios, IFormFile fotoVet) {
+      
+         // processar a fotografia
+         
+         
+         
          if (ModelState.IsValid) {
             _context.Add(veterinarios);
             await _context.SaveChangesAsync();
