@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -11,10 +13,22 @@ using Vets.Models;
 
 namespace Vets.Controllers {
    public class VeterinariosController : Controller {
+
+      /// <summary>
+      /// variável que identifica a BD do nosso projeto
+      /// </summary>
       private readonly VetsDB _context;
 
-      public VeterinariosController(VetsDB context) {
+      /// <summary>
+      /// variável que contém os dados do 'ambiente' do servidor. 
+      /// Em particular, onde estão os ficheiros guardados, no disco rígido do servidor
+      /// </summary>
+      private readonly IWebHostEnvironment _caminho;
+
+
+      public VeterinariosController(VetsDB context, IWebHostEnvironment caminho) {
          _context = context;
+         _caminho = caminho;
       }
 
       // GET: Veterinarios
@@ -118,18 +132,65 @@ namespace Vets.Controllers {
       // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
       [HttpPost]
       [ValidateAntiForgeryToken]
-      public async Task<IActionResult> Create([Bind("ID,Nome,NumCedulaProf,Fotografia")] Veterinarios veterinarios, IFormFile fotoVet) {
-      
+      public async Task<IActionResult> Create([Bind("ID,Nome,NumCedulaProf,Fotografia")] Veterinarios veterinario, IFormFile fotoVet) {
+         // **************************************
          // processar a fotografia
-         
-         
-         
-         if (ModelState.IsValid) {
-            _context.Add(veterinarios);
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+         // **************************************
+         // vars. auxiliares
+         string caminhoCompleto = "";
+         bool haImagem = false;
+
+         // será q há fotografia?
+         //    - uma hipótese possível, seria reenviar os dados para a View e solicitar a adição da imagem
+         //    - outra hipótese, será associar ao veterinário uma fotografia 'por defeito'
+         if (fotoVet == null) { veterinario.Fotografia = "noVet.png"; }
+         else {
+            // há ficheiro
+            // será o ficheiro uma imagem?
+            if (fotoVet.ContentType == "image/jpeg" ||
+                fotoVet.ContentType == "image/png") {
+               // o ficheiro é uma imagem válida
+               // preparar a imagem para ser guardada no disco rígido
+               // e o seu nome associado ao Veterinario
+               Guid g;
+               g = Guid.NewGuid();
+               string extensao = Path.GetExtension(fotoVet.FileName).ToLower();
+               string nome = g.ToString() + extensao;
+               // onde guardar o ficheiro
+               caminhoCompleto = Path.Combine(_caminho.WebRootPath, "Imagens\\Vets", nome);
+               // associar o nome do ficheiro ao Veterinário
+               veterinario.Fotografia = nome;
+               // assinalar que existe imagem e é preciso guardá-la no disco rígido
+               haImagem = true;
+            }
+            else {
+               // há imagem, mas não é do tipo correto
+               veterinario.Fotografia = "noVet.png";
+            }
          }
-         return View(veterinarios);
+
+         if (ModelState.IsValid) {
+            try {
+               _context.Add(veterinario);
+               await _context.SaveChangesAsync();
+               // se há imagem, vou guardá-la no disco rígido
+               if (haImagem) {
+                  using var stream = new FileStream(caminhoCompleto, FileMode.Create);
+                  await fotoVet.CopyToAsync(stream);
+               }
+               return RedirectToAction(nameof(Index));
+            }
+            catch (Exception) {
+               // se chegar aqui, é pq alguma coisa correu mesmo mal...
+               // o que fazer?
+               // opções a realizar (todas, ou apenas uma...):
+               //   - escrever, no disco do servidor, um log com o erro
+               //   - escrever numa tabela de Erros, na BD, o log do erro
+               //   - enviar o modelo de volta para a View
+               //   - se o erro for corrigível, corrigir o erro
+            }
+         }
+         return View(veterinario);
       }
 
       // GET: Veterinarios/Edit/5

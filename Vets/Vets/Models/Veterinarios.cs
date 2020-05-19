@@ -20,6 +20,7 @@ namespace Vets.Models {
       [Key]
       public int ID { get; set; }
 
+      [Required]
       public string Nome { get; set; }
 
       /// <summary>
@@ -28,6 +29,7 @@ namespace Vets.Models {
       [RegularExpression("vet-[0-9]{5}")]  // "vet-34589"
       [StringLength (9)]
       [Display(Name ="Nº Cédula Profissional")]
+      [Required]
       public string NumCedulaProf { get; set; }
 
       public string Fotografia { get; set; }
