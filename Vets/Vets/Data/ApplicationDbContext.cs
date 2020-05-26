@@ -1,16 +1,12 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using System.Text;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Vets.Models;
 
 namespace Vets.Data {
-
-   /// <summary>
-   /// cria a base de dados do projeto
-   /// </summary>
-   public class VetsDB : DbContext {
+   public class VetsDB : IdentityDbContext {
 
 
       /// <summary>
@@ -18,14 +14,13 @@ namespace Vets.Data {
       /// serve para ligar esta classe à BD
       /// </summary>
       /// <param name="options"></param>
-      public VetsDB(DbContextOptions<VetsDB> options) : base(options) { }
-
-
+      public VetsDB(DbContextOptions<VetsDB> options)
+          : base(options) {
+      }
 
       protected override void OnModelCreating(ModelBuilder modelBuilder) {
 
          base.OnModelCreating(modelBuilder);
-
 
          // insert DB seed
          modelBuilder.Entity<Donos>().HasData(
@@ -94,6 +89,4 @@ namespace Vets.Data {
 
 
    }
-
-
 }
