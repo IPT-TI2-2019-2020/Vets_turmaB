@@ -27,8 +27,8 @@ namespace Vets.Models {
       /// Número da Cédula Profissional
       /// </summary>
       [RegularExpression("vet-[0-9]{5}")]  // "vet-34589"
-      [StringLength (9)]
-      [Display(Name ="Nº Cédula Profissional")]
+      [StringLength(9)]
+      [Display(Name = "Nº Cédula Profissional")]
       [Required]
       public string NumCedulaProf { get; set; }
 
@@ -38,6 +38,17 @@ namespace Vets.Models {
       /// lista das Consulta a q um Veterinário está associado
       /// </summary>
       public virtual ICollection<Consultas> Consultas { get; set; }
+
+
+      //**************************************************************************
+      // o atributo seguinte é responsável por concretizar o relacionamento
+      // entre UM veterinário e o correspondente utilizador que se autentica
+      //**************************************************************************
+
+      /// <summary>
+      /// este atributo irá receber o ID do utilizador que se autentica
+      /// </summary>
+      public string UserName { get; set; }
 
    }
 }

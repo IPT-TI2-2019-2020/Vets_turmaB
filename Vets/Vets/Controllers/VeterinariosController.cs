@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -14,7 +15,7 @@ using Vets.Models;
 
 namespace Vets.Controllers {
 
-   [Authorize] // todos os métodos desta classe ficam protegidos
+   [Authorize] // todos os métodos desta classe ficam protegidos. Só pessoas AUTORIZADAS têm acesso.
    public class VeterinariosController : Controller {
 
       /// <summary>
@@ -28,10 +29,18 @@ namespace Vets.Controllers {
       /// </summary>
       private readonly IWebHostEnvironment _caminho;
 
+      /// <summary>
+      /// recolher os dados de uma pessoa que está autenticada
+      /// </summary>
+      private readonly UserManager<ApplicationUser> _userManager;
 
-      public VeterinariosController(VetsDB context, IWebHostEnvironment caminho) {
+      public VeterinariosController(
+                     VetsDB context, 
+                     IWebHostEnvironment caminho,
+                     UserManager<ApplicationUser> userManager) {
          _context = context;
          _caminho = caminho;
+         _userManager = userManager;
       }
 
 
@@ -70,14 +79,18 @@ namespace Vets.Controllers {
          // WHERE c.AnimalFK = a.ID AND
          //       c.VeterinarioFK = v.ID AND
          //       a.DonoFK = d.ID AND
-         //       v.ID = id
+         //       v.ID = id AND
+         //       v.UserName = AspNetUsers.Id
 
          // acesso aos dados em modo 'Eager Loading'
          var veterinario = await _context.Veterinarios
                                          .Include(v => v.Consultas)
                                          .ThenInclude(a => a.Animal)
                                          .ThenInclude(d => d.Dono)
-                                         .FirstOrDefaultAsync(v => v.ID == id);
+                                         .Where(v => v.ID == id &&
+                                                     v.UserName==_userManager.GetUserId(User)
+                                         )
+                                         .FirstOrDefaultAsync();
 
          if (veterinario == null) {
             return NotFound();
@@ -218,15 +231,27 @@ namespace Vets.Controllers {
       }
 
       // GET: Veterinarios/Edit/5
+      /// <summary>
+      /// Edita os dados de um Veterinário
+      ///   - Apenas os 'Administrativos' podem editar todos os Veterinários
+      ///   - Um veterinário só pode editar os seus próprios dados
+      /// </summary>
+      /// <param name="id">id do veterinário</param>
+      /// <returns></returns>
+      [Authorize(Roles = "Veterinario,Administrativo")]
       public async Task<IActionResult> Edit(int? id) {
          if (id == null) {
-            return NotFound();
+          //  return NotFound(); // este retorno é automático e deve ser personalizado
+            return RedirectToAction("Index","Home");
          }
 
          var veterinarios = await _context.Veterinarios.FindAsync(id);
          if (veterinarios == null) {
             return NotFound();
          }
+
+
+
          return View(veterinarios);
       }
 
@@ -235,6 +260,7 @@ namespace Vets.Controllers {
       // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
       [HttpPost]
       [ValidateAntiForgeryToken]
+      [Authorize(Roles = "Veterinario,Administrativo")]
       public async Task<IActionResult> Edit(int id, [Bind("ID,Nome,NumCedulaProf,Fotografia")] Veterinarios veterinarios) {
          if (id != veterinarios.ID) {
             return NotFound();
